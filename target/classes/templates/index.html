@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMaster AI — Intelligent Quiz Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Header -->
+<header class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                    <path d="M14 8L20 11V17L14 20L8 17V11L14 8Z" fill="currentColor" opacity="0.6"/>
+                    <circle cx="14" cy="14" r="2" fill="currentColor"/>
+                </svg>
+            </div>
+            <span class="logo-text">Sudo QuizMaster<em>AI</em></span>
+        </div>
+        <nav class="nav-pills">
+            <span class="pill active" onclick="showSection('generate')">Generate</span>
+            <span class="pill" onclick="showSection('quiz')">Take Quiz</span>
+            <span class="pill" onclick="showSection('results')">Results</span>
+        </nav>
+        <div class="header-badge">
+            <span class="dot"></span>
+            Live
+        </div>
+    </div>
+</header>
+
+<!-- ===== GENERATE ===== -->
+<section id="section-generate" class="section active">
+    <div class="hero">
+        <div class="hero-eyebrow">
+            <span class="tag">AI-Powered</span>
+            <span class="tag">Instant Generation</span>
+        </div>
+        <h1 class="hero-title">
+            Create <span class="gradient-text">Intelligent Quizzes</span><br>in Seconds
+        </h1>
+        <p class="hero-sub">AI to generate perfectly crafted multiple-choice questions on any topic, at any difficulty level.</p>
+    </div>
+
+    <div class="config-panel">
+        <div class="config-block">
+            <label class="config-label">Quiz Category</label>
+            <div class="type-grid" id="typeGrid">
+                <div class="type-card active" data-value="programming" onclick="selectType(this)">
+                    <div class="type-icon">💻</div><div class="type-name">Programming</div>
+                </div>
+                <div class="type-card" data-value="mathematics" onclick="selectType(this)">
+                    <div class="type-icon">📐</div><div class="type-name">Mathematics</div>
+                </div>
+                <div class="type-card" data-value="science" onclick="selectType(this)">
+                    <div class="type-icon">🔬</div><div class="type-name">Science</div>
+                </div>
+                <div class="type-card" data-value="history" onclick="selectType(this)">
+                    <div class="type-icon">🏛️</div><div class="type-name">History</div>
+                </div>
+                <div class="type-card" data-value="general knowledge" onclick="selectType(this)">
+                    <div class="type-icon">🌍</div><div class="type-name">General</div>
+                </div>
+                <div class="type-card" data-value="technology" onclick="selectType(this)">
+                    <div class="type-icon">⚡</div><div class="type-name">Technology</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="config-row">
+            <div class="config-block flex-1">
+                <label class="config-label">Topics</label>
+                <div class="topics-input-wrap">
+                    <input type="text" id="topicSearch" class="input-field" placeholder="Search topics..." oninput="filterTopics(this.value)" autocomplete="off"/>
+                    <div class="topics-dropdown" id="topicsDropdown"></div>
+                </div>
+                <div class="selected-topics" id="selectedTopics"></div>
+            </div>
+            <div class="config-block w-200">
+                <label class="config-label">Difficulty</label>
+                <div class="level-tabs" id="levelTabs">
+                    <button class="level-btn" data-value="easy" onclick="selectLevel(this)">Easy</button>
+                    <button class="level-btn active" data-value="medium" onclick="selectLevel(this)">Medium</button>
+                    <button class="level-btn" data-value="hard" onclick="selectLevel(this)">Hard</button>
+                    <button class="level-btn" data-value="expert" onclick="selectLevel(this)">Expert</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="config-row">
+            <div class="config-block w-160">
+                <label class="config-label">Questions</label>
+                <div class="count-control">
+                    <button class="count-btn" onclick="adjustCount(-1)">−</button>
+                    <span class="count-display" id="countDisplay">5</span>
+                    <button class="count-btn" onclick="adjustCount(1)">+</button>
+                </div>
+            </div>
+            <div class="config-block flex-1">
+                <label class="config-label">Custom Prompt <span class="optional">(optional override)</span></label>
+                <textarea id="customPrompt" class="input-field textarea" placeholder="E.g.: Generate 10 advanced Java Spring Boot interview questions..."></textarea>
+            </div>
+        </div>
+
+        <button class="generate-btn" id="generateBtn" onclick="generateQuiz()">
+            <span class="btn-text">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 2L12.5 7.5H18L13.5 11L15.5 17L10 13.5L4.5 17L6.5 11L2 7.5H7.5L10 2Z" fill="currentColor"/>
+                </svg>
+                Generate Quiz
+            </span>
+            <span class="btn-loading hidden">
+                <span class="spinner"></span>
+                Generating ...
+            </span>
+        </button>
+    </div>
+</section>
+
+<!-- ===== QUIZ =====
+     NOTE: No score display. No answer-feedback div.
+     Only a blue "selected" highlight is shown when picking an option.
+     Correct/wrong is revealed ONLY on the Results page.
+-->
+<section id="section-quiz" class="section">
+    <div class="quiz-header">
+        <div class="quiz-meta">
+            <span id="quizTopic" class="quiz-topic-label">Topic</span>
+            <span id="quizLevel" class="quiz-level-label">Medium</span>
+        </div>
+        <div class="quiz-progress-bar">
+            <div class="quiz-progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="quiz-stats">
+            <span>Question <strong id="currentQ">1</strong> of <strong id="totalQ">0</strong></span>
+        </div>
+    </div>
+
+    <div class="question-card" id="questionCard">
+        <div class="question-number" id="questionNum">Q1</div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options-grid" id="optionsGrid"></div>
+        <!-- NO answerFeedback element here — removed intentionally -->
+        <div class="question-nav">
+            <button class="nav-btn secondary" onclick="prevQuestion()">← Previous</button>
+            <button class="nav-btn primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+        </div>
+    </div>
+</section>
+
+<!-- ===== RESULTS ===== -->
+<section id="section-results" class="section">
+    <div class="results-container">
+        <div class="results-hero">
+            <div class="score-circle" id="scoreCircle">
+                <svg viewBox="0 0 160 160">
+                    <circle cx="80" cy="80" r="70" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+                    <circle cx="80" cy="80" r="70" fill="none" stroke="url(#scoreGrad)" stroke-width="8"
+                            stroke-linecap="round" stroke-dasharray="439.8"
+                            stroke-dashoffset="439.8" id="scoreArc" transform="rotate(-90 80 80)"/>
+                    <defs>
+                        <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#6EE7B7"/>
+                            <stop offset="100%" stop-color="#3B82F6"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <div class="score-inner">
+                    <div class="score-percent" id="scorePercent">0%</div>
+                    <div class="score-label">Score</div>
+                </div>
+            </div>
+            <div class="results-info">
+                <h2 class="results-title" id="resultsTitle">Quiz Complete!</h2>
+                <p class="results-subtitle" id="resultsSubtitle">Here's how you did</p>
+                <div class="results-stats-row">
+                    <div class="stat-chip correct">✓ <strong id="correctCount">0</strong> Correct</div>
+                    <div class="stat-chip wrong">✗ <strong id="wrongCount">0</strong> Wrong</div>
+                    <div class="stat-chip total">⬡ <strong id="totalCount">0</strong> Total</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-section">
+            <h3 class="review-title">Question Review</h3>
+            <div class="review-list" id="reviewList"></div>
+        </div>
+
+        <div class="results-actions">
+            <button class="action-btn primary" onclick="retakeQuiz()">🔁 Retake Quiz</button>
+            <button class="action-btn secondary" onclick="showSection('generate')">✦ New Quiz</button>
+            <button class="action-btn ghost" onclick="exportResults()">⬇ Export Results</button>
+        </div>
+    </div>
+</section>
+
+<div class="toast hidden" id="errorToast">
+    <span class="toast-icon">⚠</span>
+    <span id="toastMessage">Something went wrong</span>
+</div>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
